@@ -1,8 +1,11 @@
 //jshint esversion:6
+
+//1. Switch out mongoDB declaration
+// for mongoose
 const mongoose = require('mongoose');
 mongoose.connect("mongodb://localhost:27017/fruitsDB");
 
-//create a mongoose schema for this DB
+//2. create a mongoose schema for this DB
 const fruitSchema = new mongoose.Schema ({
   name: {
     type: String,
@@ -17,8 +20,27 @@ const fruitSchema = new mongoose.Schema ({
   review: String
 });
 
-//create a colleciton model for the schema
+//3. Practice and create another schema for Person
+
+const personSchema = new mongoose.Schema ({
+  name: {
+    type: String,
+    required: [true, "Name your person"]
+  },
+  age: Number,
+  favoriteFruit: fruitSchema
+});
+
+//4. create a colleciton model for the Fruit schema
 const Fruit = mongoose.model("Fruit", fruitSchema);
+
+const Person = mongoose.model("Person", personSchema);
+
+const pineapple = new Fruit ({
+  name: "Pineapple",
+  rating: 8,
+  review: "More like fine apple, am I right?"
+});
 
 //new fruit object
 const fruit = new Fruit ({
@@ -46,20 +68,46 @@ const mandarin = new Fruit ({
   review: "Satisfying to peel and eat"
 });
 
-// //saves the object into the collection
-// Fruit.insertMany([nectarine, banana, mandarin], function(err) {
-//   if(err) {
-//     console.log(err);
-//   } else {
-//     console.log("Successfully saved all fruit to fruitDB");
-//   }
-// });
+//5. Save the fruits into collection
+Fruit.insertMany([nectarine, banana, mandarin, pineapple], function(err) {
+  if(err) {
+    console.log(err);
+  } else {
+    console.log("Successfully saved all fruit to fruitDB");
+  }
+});
 
+//6. Create a new person
+//and establish a relationship
+//with Fruit collection
+
+const person = new Person(
+  {
+  name: "Amy",
+  age: 12,
+  favoriteFruit: pineapple
+});
+
+person.save();
+
+//7. Update previously created person
+//with specified id to have relationship
+//with fruit collection
+Person.updateOne({id: "62b091a0932754c2b2d36643"}, {favoriteFruit: banana}, function(err) {
+  if(err) {
+    console.log(err);
+  } else {
+    console.log("Person info successfully updated");
+  }
+});
+
+//8. Find the names of akl o the saved fruits
 Fruit.find(function(err, fruits) {
   if (err) {
     console.log(err);
   } else {
 
+    //this closes mongoose connection afteyr 500ms
     setTimeout(function() { mongoose.connection.close();}, 500);
 
     fruits.forEach(function(fruit) {
@@ -68,16 +116,16 @@ Fruit.find(function(err, fruits) {
   }
 });
 
-//update an element
-// Fruit.updateOne({_id: "62b0991c0063c2f4c4fc6ee2"}, {review: "OOOH GOOD HEAVENS"}, function(err) {
-//   if(err) {
-//     console.log(err);
-//   } else {
-//     console.log("Successfully Updated");
-//   }
-// });
+//9. update an element with specified ID
+Fruit.updateOne({_id: "62b0991c0063c2f4c4fc6ee2"}, {review: "OOOH GOOD HEAVENS"}, function(err) {
+  if(err) {
+    console.log(err);
+  } else {
+    console.log("Successfully Updated");
+  }
+});
 
-//removes one element that matches the criteria
+//10. Remove one element that matches the criteria
 Fruit.deleteOne({name: "Apple"}, function(err){
   if (err) {
     console.log(err);
@@ -86,56 +134,11 @@ Fruit.deleteOne({name: "Apple"}, function(err){
   }
 });
 
-//removes all element that matches criteria
+//11. Remove all element that matches criteria
 Fruit.deleteMany({name: "Mandarin"}, function(err){
   if (err) {
     console.log(err);
   } else {
-    console.log("Apple succeffuly deleted");
+    console.log("Mandarin succeffuly deleted");
   }
 });
-
-
-// //mongoDB code to insert objects into the colleciton
-// const insertDocuments = function(db, callback) {
-//   // Get the documents collection
-//   const collection = db.collection('fruits');
-//   // Insert some documents
-//   collection.insertMany([
-//       {
-//         name: "Apple",
-//         score: 4,
-//         review: "Makes me hungry"
-//       },
-//       {
-//         name: "Orange",
-//         score: 3,
-//         review: "Mid"
-//       },
-//       {
-//         name: "Banana",
-//         score: 7,
-//         review: "Pretty universal, love it"
-//       }
-//   ],
-//   function (err, result)
-//   {
-//     assert.equal(err, null);
-//     assert.equal(3, result.insertedCount);
-//     assert.equal(3, Object.keys(result.insertedIds).length);
-//     console.log("Inserted 3 documents into the collection");
-//     callback(result);
-//   });
-// }
-
-const findDocuments = function(db, callback) {
-  // Get the documents collection
-  const collection = db.collection('fruits');
-  // Find some documents
-  collection.find({}).toArray(function(err, docs) {
-    assert.equal(err, null);
-    console.log("Found the following records");
-    console.log(docs)
-    callback(docs);
-  });
-}
