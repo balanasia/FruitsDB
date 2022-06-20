@@ -38,12 +38,25 @@ const mandarin = new Fruit ({
   review: "Satisfying to peel and eat"
 });
 
-//saves the object into the collection
-Fruit.insertMany([nectarine, banana, mandarin], function(err) {
-  if(err) {
+// //saves the object into the collection
+// Fruit.insertMany([nectarine, banana, mandarin], function(err) {
+//   if(err) {
+//     console.log(err);
+//   } else {
+//     console.log("Successfully saved all fruit to fruitDB");
+//   }
+// });
+
+Fruit.find(function(err, fruits) {
+  if (err) {
     console.log(err);
   } else {
-    console.log("Successfully saved all fruit to fruitDB");
+
+    setTimeout(function() { mongoose.connection.close();}, 500);
+
+    fruits.forEach(function(fruit) {
+      console.log(fruit.name);
+    });
   }
 });
 
