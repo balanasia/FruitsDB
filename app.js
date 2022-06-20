@@ -4,8 +4,16 @@ mongoose.connect("mongodb://localhost:27017/fruitsDB");
 
 //create a mongoose schema for this DB
 const fruitSchema = new mongoose.Schema ({
-  name: String,
-  rating: Number,
+  name: {
+    type: String,
+    required: [true, "We need the name of the fruit!"]
+  },
+  rating: {
+    type: Number,
+    //adds a min and max rating
+    min: 1,
+    max: 10
+  },
   review: String
 });
 
@@ -21,7 +29,7 @@ const fruit = new Fruit ({
 
 
 const nectarine = new Fruit ({
-  name: "nectarine",
+  name: "Nectarine",
   rating: 8,
   review: "Sweet and yummy"
 });
@@ -57,6 +65,33 @@ Fruit.find(function(err, fruits) {
     fruits.forEach(function(fruit) {
       console.log(fruit.name);
     });
+  }
+});
+
+//update an element
+// Fruit.updateOne({_id: "62b0991c0063c2f4c4fc6ee2"}, {review: "OOOH GOOD HEAVENS"}, function(err) {
+//   if(err) {
+//     console.log(err);
+//   } else {
+//     console.log("Successfully Updated");
+//   }
+// });
+
+//removes one element that matches the criteria
+Fruit.deleteOne({name: "Apple"}, function(err){
+  if (err) {
+    console.log(err);
+  } else {
+    console.log("Apple succeffuly deleted");
+  }
+});
+
+//removes all element that matches criteria
+Fruit.deleteMany({name: "Mandarin"}, function(err){
+  if (err) {
+    console.log(err);
+  } else {
+    console.log("Apple succeffuly deleted");
   }
 });
 
